@@ -136,26 +136,8 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Header() {
-  // const { currentUser, setCurrentUser, setUserToken } = UseStateContext()
+export default function Navbar() {
 
-  // useEffect(() => {
-  //   axiosClient.get('/me')
-  //     .then(({ data }) => {
-  //       setCurrentUser(data)
-
-  //     })
-  // }, [setCurrentUser]);
-
-
-  // const logout = (e) => {
-  //   e.preventDefault();
-  //   axiosClient.post('/logout')
-  //     .then(res => {
-  //       setCurrentUser({});
-  //       setUserToken(null);
-  //     });
-  // }
   const [open, setOpen] = useState(false)
 
   return (
@@ -370,7 +352,7 @@ export default function Header() {
                               {/* Presentational element used to render the bottom shadow, if we put the shadow on the actual panel it pokes out the top, so we use this shorter element to hide the top of the shadow */}
                               <div className="absolute inset-0 top-1/2 bg-white shadow" aria-hidden="true" />
 
-                              <div className="relative bg-white">
+                              <div className="relative bg-white z-50">
                                 <div className="mx-auto max-w-7xl px-8">
                                   <div className="grid grid-cols-2 gap-x-8 gap-y-10 py-16">
                                     <div className="col-start-2 grid grid-cols-2 gap-x-8">

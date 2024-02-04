@@ -1,5 +1,5 @@
 import { Navigate, createBrowserRouter } from "react-router-dom"
-import Products from "./views/admin/Products";
+
 import Orders from "./views/admin/Orders";
 import AdminDashboard from "./views/admin/AdminDashboard";
 import Store from "./views/public/Store";
@@ -8,11 +8,18 @@ import Login from "./views/public/Login";
 import AdminLayout from "./components/admin/AdminLayout";
 import MyOrders from "./views/client/MyOrders";
 import Cart from "./views/public/Cart";
-import Items from "./views/public/Items";
-import ItemView from "./views/public/ItemView";
+
+
 import Profile from "./views/client/Profile";
 import ClientLayout from "./components/client/ClientLayout";
 import PublicLayout from "./components/public/PublicLayout";
+import ProductView from "./views/public/ProductView";
+
+import ProductsList from "./views/admin/ProductsList";
+
+import Colections from "./views/public/Colections";
+import ProductsByCategory from "./views/public/ProductsByCategory";
+import ProductsBySubcategory from "./views/public/ProductsBySubcategory";
 
 
 const router = createBrowserRouter([
@@ -29,23 +36,32 @@ const router = createBrowserRouter([
         element: <Store />,
       },
       {
-        path: '/items',
-        element: <Items />,
+        path: 'colections',
+        element: <Colections/>,
       },
       {
-        path: '/item:id',
-        element: <ItemView />,
+        path: '/categories-slug',
+        element: <ProductsByCategory/>,
       },
       {
-        path: '/cart',
+        path: '/subcategories-slug',
+        element: <ProductsBySubcategory/>,
+      },
+
+      {
+        path: 'item-slug',
+        element: <ProductView />,
+      },
+      {
+        path: 'cart',
         element: <Cart />,
       },
       {
-        path: '/login',
+        path: 'login',
         element: <Login />
       },
       {
-        path: '/signup',
+        path: 'signup',
         element: <SignUp />,
       },
     ],
@@ -75,8 +91,12 @@ const router = createBrowserRouter([
         element: <AdminDashboard />,
       },
       {
-        path: 'products',
-        element: <Products />,
+        path: 'items',
+        element: <ProductsList />,
+      },
+      {
+        path: 'item:id',
+        element: <ProductsList />,
       },
       {
         path: 'orders',

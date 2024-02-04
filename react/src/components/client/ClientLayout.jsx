@@ -1,5 +1,5 @@
-import { Navigate, Outlet } from 'react-router-dom'
-import Header from '../public/Header'
+import {  Outlet } from 'react-router-dom'
+
 
 export default function ClientLayout() {
   // const { currentUser, userToken} = UseStateContext();
@@ -16,7 +16,7 @@ export default function ClientLayout() {
 
   return (
     <div className="min-h-full">ClientLayout
-      <Header />
+
       <Outlet />
     </div>
   )
