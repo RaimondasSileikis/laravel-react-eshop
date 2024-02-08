@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axiosClient from "../../axios";
 
 export default function Login () {
-  // const { setCurrentUser, setUserToken } = UseStateContext();
+  // const { setCurrentUser, setUserToken } = useStateContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState({ __html: '' });

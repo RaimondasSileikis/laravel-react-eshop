@@ -5,22 +5,25 @@ import Breadcrumb from '../../components/public/Breadcrumb'
 import { useState } from 'react'
 import { StarIcon } from '@heroicons/react/20/solid'
 import { RadioGroup } from '@headlessui/react'
-
-
+import { useParams } from 'react-router-dom'
 
 
 const product = {
   name: 'Basic Tee 6-Pack',
   price: '$192',
   href: '#',
-  category: {
-    id: 1,
-    name: 'Men',
-    section: {
-      id: 1,
-      name: 'Clothing',
+  collection: {
+    id: 1, name: 'women',
+    category: {
+      id: 1_1,
+      name: 'Cloathing',
+      section: {
+        id: 1_1_1,
+        name: 'Top',
+      },
     },
   },
+
   images: [
     {
       src: 'https://tailwindui.com/img/ecommerce-images/product-page-02-secondary-product-shot.jpg',
@@ -77,13 +80,26 @@ export default function ProductView() {
   const [selectedSize, setSelectedSize] = useState(product.sizes[2])
 
 
+  function createBreadcrumbs(product) {
+    const breadcrumbs = [];
+    breadcrumbs.push({ id: product.collection.id, name: product.collection.name, href: '#' });
+    breadcrumbs.push({ id: product.collection.category.id, name: product.collection.category.name, href: '#' });
+    breadcrumbs.push({ id: product.collection.category.section.id, name: product.collection.category.section.name, href: '#' });
+    return breadcrumbs;
+  }
+  const productViewBreadcrumbs = createBreadcrumbs(product);
+
+  const params = useParams()
+  console.log(params.groupSlug);
   return (
-    <PageComponent breadcrumb={<Breadcrumb productCategory={product.category} />} >
+
+
+    <PageComponent  >
+      <Breadcrumb productGroupSlug={params.groupSlug} ></Breadcrumb>
       {/* <Breadcrumb /> */}
 
       <div className="bg-white">
         <div className="pt-6">
-
 
           {/* Image gallery */}
           <div className="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8">
@@ -296,7 +312,6 @@ export default function ProductView() {
           </div>
         </div>
       </div>
-
 
 
     </PageComponent>

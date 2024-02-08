@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import axiosClient from '../../axios';
 
 export default function Signup() {
-  // const { setCurrentUser, setUserToken } = UseStateContext();
+  // const { setCurrentUser, setUserToken } = useStateContext();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
