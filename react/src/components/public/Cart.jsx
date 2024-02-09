@@ -1,6 +1,8 @@
 import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useStateContext } from '../../contexts/ContextProvider'
+import { NavLink, useLocation, useParams } from 'react-router-dom'
 
 const products = [
   {
@@ -8,7 +10,7 @@ const products = [
     name: 'Throwback Hip Bag',
     href: '#',
     color: 'Salmon',
-    price: '$90.00',
+    price: '90.00',
     quantity: 1,
     imageSrc: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg',
     imageAlt: 'Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt.',
@@ -18,8 +20,8 @@ const products = [
     name: 'Medium Stuff Satchel',
     href: '#',
     color: 'Blue',
-    price: '$32.00',
-    quantity: 1,
+    price: '32.00',
+    quantity: 2,
     imageSrc: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-02.jpg',
     imageAlt:
       'Front of satchel with blue canvas body, black straps and handle, drawstring top, and front zipper pouch.',
@@ -27,11 +29,18 @@ const products = [
   // More products...
 ]
 
-export default function Cart({cartOpen, setCartOpen}) {
-  // const [cartItems, setCartItems] = useState();
+export default function Cart({ cartOpen, setCartOpen }) {
 
+  const { cartItems, setCartItems, currentUser } = useStateContext([])
 
+  // cart items index and delete
+  // if user order create (orderItems_id and user_id)
 
+  const { pathname } = useLocation()
+
+  const cartSubtotal = products.reduce((acc, item) => acc + parseInt(item.price) * parseInt(item.quantity), 0)
+
+  console.log('total', cartSubtotal);
   return (
     <Transition.Root show={cartOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={setCartOpen}>
@@ -48,8 +57,8 @@ export default function Cart({cartOpen, setCartOpen}) {
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-hidden">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+          <div className="absolute inset-0 overflow-hidden">ttt
+            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">yyy
               <Transition.Child
                 as={Fragment}
                 enter="transform transition ease-in-out duration-500 sm:duration-700"
@@ -60,10 +69,16 @@ export default function Cart({cartOpen, setCartOpen}) {
                 leaveTo="translate-x-full"
               >
                 <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
+
                   <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
                     <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
                       <div className="flex items-start justify-between">
-                        <Dialog.Title className="text-lg font-medium text-gray-900">Shopping cart</Dialog.Title>
+
+                       <Dialog.Title className="text-lg font-medium text-gray-900">
+                        {currentUser && 'Shopping cart'}
+                        {!currentUser && 'Order summary'}
+                        </Dialog.Title>
+
                         <div className="ml-3 flex h-7 items-center">
                           <button
                             type="button"
@@ -75,6 +90,7 @@ export default function Cart({cartOpen, setCartOpen}) {
                             <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                           </button>
                         </div>
+
                       </div>
 
                       <div className="mt-8">
@@ -96,7 +112,7 @@ export default function Cart({cartOpen, setCartOpen}) {
                                       <h3>
                                         <a href={product.href}>{product.name}</a>
                                       </h3>
-                                      <p className="ml-4">{product.price}</p>
+                                      <p className="ml-4">${product.price}</p>
                                     </div>
                                     <p className="mt-1 text-sm text-gray-500">{product.color}</p>
                                   </div>
@@ -122,17 +138,20 @@ export default function Cart({cartOpen, setCartOpen}) {
 
                     <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
                       <div className="flex justify-between text-base font-medium text-gray-900">
-                        <p>Subtotal</p>
-                        <p>$262.00</p>
+                        { currentUser && <p>Subtotal</p>}
+                        <p>${cartSubtotal}</p>
                       </div>
-                      <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
+                      <p className="mt-0.5 text-sm text-gray-500">
+                        Shipping and taxes calculated {currentUser && 'at checkout.'}
+                        </p>
                       <div className="mt-6">
-                        <a
-                          href="#"
+                        <NavLink
+                          to="profile"
+                          state={{ pathname: `?${pathname.toString()}` }}
                           className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
                         >
                           Checkout
-                        </a>
+                        </NavLink>
                       </div>
                       <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
                         <p>

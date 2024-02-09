@@ -5,7 +5,8 @@ import Breadcrumb from '../../components/public/Breadcrumb'
 import { useState } from 'react'
 import { StarIcon } from '@heroicons/react/20/solid'
 import { RadioGroup } from '@headlessui/react'
-import { useParams } from 'react-router-dom'
+import { NavLink, useParams } from 'react-router-dom'
+import { useStateContext } from '../../contexts/ContextProvider'
 
 
 const product = {
@@ -79,15 +80,14 @@ export default function ProductView() {
   const [selectedColor, setSelectedColor] = useState(product.colors[0])
   const [selectedSize, setSelectedSize] = useState(product.sizes[2])
 
+  const { cartItems, setCartItems } = useStateContext([])
 
-  function createBreadcrumbs(product) {
-    const breadcrumbs = [];
-    breadcrumbs.push({ id: product.collection.id, name: product.collection.name, href: '#' });
-    breadcrumbs.push({ id: product.collection.category.id, name: product.collection.category.name, href: '#' });
-    breadcrumbs.push({ id: product.collection.category.section.id, name: product.collection.category.section.name, href: '#' });
-    return breadcrumbs;
-  }
-  const productViewBreadcrumbs = createBreadcrumbs(product);
+  //product detail index
+  // cart items add (store)
+
+
+
+
 
   const params = useParams()
   console.log(params.groupSlug);
@@ -96,7 +96,6 @@ export default function ProductView() {
 
     <PageComponent  >
       <Breadcrumb productGroupSlug={params.groupSlug} ></Breadcrumb>
-      {/* <Breadcrumb /> */}
 
       <div className="bg-white">
         <div className="pt-6">
@@ -146,8 +145,9 @@ export default function ProductView() {
               <h2 className="sr-only">Product information</h2>
               <p className="text-3xl tracking-tight text-gray-900">{product.price}</p>
 
+
               {/* Reviews */}
-              <div className="mt-6">
+              {/* <div className="mt-6">
                 <h3 className="sr-only">Reviews</h3>
                 <div className="flex items-center">
                   <div className="flex items-center">
@@ -167,11 +167,11 @@ export default function ProductView() {
                     {reviews.totalCount} reviews
                   </a>
                 </div>
-              </div>
+              </div> */}
 
-              <form className="mt-10">
+              <form   className="mt-10">
                 {/* Colors */}
-                <div>
+                {/* <div>
                   <h3 className="text-sm font-medium text-gray-900">Color</h3>
 
                   <RadioGroup value={selectedColor} onChange={setSelectedColor} className="mt-4">
@@ -204,10 +204,10 @@ export default function ProductView() {
                       ))}
                     </div>
                   </RadioGroup>
-                </div>
+                </div> */}
 
                 {/* Sizes */}
-                <div className="mt-10">
+                {/* <div className="mt-10">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-medium text-gray-900">Size</h3>
                     <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
@@ -266,14 +266,25 @@ export default function ProductView() {
                       ))}
                     </div>
                   </RadioGroup>
-                </div>
+                </div> */}
 
-                <button
-                  type="submit"
-                  className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  Add to bag
-                </button>
+
+
+
+
+
+
+
+
+                <NavLink to='../'>
+                  <button
+                    type="submit"
+
+                    className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  >
+                    Add to bag
+                  </button>
+                </NavLink>
               </form>
             </div>
 

@@ -61,6 +61,9 @@ const router = createBrowserRouter([
         index: true,
         element: <Profile />,
       },
+      //   path: '/profile',
+      //   element: <Navigate to='/' />,
+      // },
       {
         path: 'my-orders',
         element: <MyOrders />,
