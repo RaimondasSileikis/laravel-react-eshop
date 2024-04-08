@@ -1,21 +1,41 @@
-import React from 'react'
-import { Navigate, Outlet } from 'react-router-dom'
+
+import { Navigate, Outlet, useNavigate } from 'react-router-dom'
+import { useStateContext } from '../../contexts/ContextProvider'
+import { adminAxiosClient } from '../../axios';
+import { useEffect } from 'react';
 
 export default function AdminLayout() {
-// const { currentUser, userToken} = useStateContext();
+  const { currentAdmin, setCurrentAdmin, adminToken, setAdminToken } = useStateContext();
 
-  // const userToken = '123';
-  // const userTypeAdmin = 0
+  useEffect(() => {
+    adminAxiosClient.get('/get-admin')
+      .then(({ data }) => {
+        setCurrentAdmin(data)
+      });
+  }, [setCurrentAdmin]);
 
-  // if (!userToken || !userTypeAdmin) {
-  //   return (
-  //     <Navigate to='/login' />
-  //   )
-  // }
+
+  if (!adminToken) {
+    return (
+      <Navigate to='/adminlogin' />
+    )
+  }
+
+  const logout = (e) => {
+    e.preventDefault();
+    adminAxiosClient.post('/admin-logout')
+      .then(res => {
+        setCurrentAdmin({});
+        setAdminToken(null);
+      });
+  }
+
 
   return (
     <div>AdminLayout
-       <Outlet/>
+      <h1>admin:  {currentAdmin && currentAdmin.email}</h1>
+      <button onClick={logout}>logout</button>
+      <Outlet />
     </div>
   )
 }

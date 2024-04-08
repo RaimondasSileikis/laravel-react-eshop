@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom"
 import { useStateContext } from "../../contexts/ContextProvider"
 
 export default function Home() {
-  const { eshopNavigation } = useStateContext()
+  const { categoriesTree } = useStateContext();
 
   return (
     <div className="bg-gray-100">
@@ -12,20 +12,20 @@ export default function Home() {
             <h2 className="text-2xl font-bold text-gray-900">Shop by Colections</h2>
           </div>
           <div className="mt-6 space-y-12 lg:grid lg:grid-cols-3 lg:gap-x-6 lg:space-y-0">
-            {eshopNavigation.collections.map((callout) => (
-              <div key={callout.name} className="group relative">
+            {categoriesTree.map((callout) => (
+              <div key={callout.slug} className="group relative">
                 <div className="relative h-80 w-full overflow-hidden rounded-lg bg-white sm:aspect-h-1 sm:aspect-w-2 lg:aspect-h-1 lg:aspect-w-1 group-hover:opacity-75 sm:h-64">
                   <img
-                    src={callout.imageSrc}
-                    alt={callout.imageAlt}
+                    src={callout.image_url}
+                    alt={callout.image_alt}
                     className="h-full w-full object-cover object-center"
                   />
                 </div>
                 <h3 className="mt-6 text-sm text-gray-500">
                   <NavLink
-                    to={callout.id}>
+                    to={callout.slug}>
                     <span className="absolute inset-0" />
-                    {callout.name}
+                    {callout.title}
                   </NavLink>
 
                 </h3>

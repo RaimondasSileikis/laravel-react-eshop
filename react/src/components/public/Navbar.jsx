@@ -1,142 +1,68 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Dialog, Menu, Popover, Tab, Transition } from '@headlessui/react'
-import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, UserIcon, XMarkIcon, ShoppingCartIcon } from '@heroicons/react/24/outline'
-import { NavLink } from 'react-router-dom'
+import { Bars3Icon, UserIcon, XMarkIcon, ShoppingCartIcon } from '@heroicons/react/24/outline'
+import { NavLink,  useNavigate, useSearchParams } from 'react-router-dom'
 import { useStateContext } from '../../contexts/ContextProvider'
 import Cart from './Cart'
+import { userAxiosClient } from '../../axios'
 
-const navigation = {
-  collections: [
-    {
-      id: 'women',
-      name: 'Women',
-      featured: [
-        {
-          name: 'New Arrivals',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-01.jpg',
-          imageAlt: 'Models sitting back to back, wearing Basic Tee in black and bone.',
-        },
-        {
-          name: 'Basic Tees',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-02.jpg',
-          imageAlt: 'Close up of Basic Tee fall bundle with off-white, ochre, olive, and black tees.',
-        },
-      ],
-      categories: [
-        {
-          id: 'clothing',
-          name: 'Clothing',
-          items: [
-            { name: 'Tops', href: '#' },
-            { name: 'Dresses', href: '#' },
-            { name: 'Pants', href: '#' },
-            { name: 'Denim', href: '#' },
-            { name: 'Sweaters', href: '#' },
-            { name: 'T-Shirts', href: '#' },
-            { name: 'Jackets', href: '#' },
-            { name: 'Activewear', href: '#' },
-            { name: 'Browse All', href: '#' },
-          ],
-        },
-        {
-          id: 'accessories',
-          name: 'Accessories',
-          items: [
-            { name: 'Watches', href: '#' },
-            { name: 'Wallets', href: '#' },
-            { name: 'Bags', href: '#' },
-            { name: 'Sunglasses', href: '#' },
-            { name: 'Hats', href: '#' },
-            { name: 'Belts', href: '#' },
-          ],
-        },
-        {
-          id: 'brands',
-          name: 'Brands',
-          items: [
-            { name: 'Full Nelson', href: '#' },
-            { name: 'My Way', href: '#' },
-            { name: 'Re-Arranged', href: '#' },
-            { name: 'Counterfeit', href: '#' },
-            { name: 'Significant Other', href: '#' },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'men',
-      name: 'Men',
-      featured: [
-        {
-          name: 'New Arrivals',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/product-page-04-detail-product-shot-01.jpg',
-          imageAlt: 'Drawstring top with elastic loop closure and textured interior padding.',
-        },
-        {
-          name: 'Artwork Tees',
-          href: '#',
-          imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-02-image-card-06.jpg',
-          imageAlt:
-            'Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.',
-        },
-      ],
-      categories: [
-        {
-          id: 'clothing',
-          name: 'Clothing',
-          items: [
-            { name: 'Tops', href: '#' },
-            { name: 'Pants', href: '#' },
-            { name: 'Sweaters', href: '#' },
-            { name: 'T-Shirts', href: '#' },
-            { name: 'Jackets', href: '#' },
-            { name: 'Activewear', href: '#' },
-            { name: 'Browse All', href: '#' },
-          ],
-        },
-        {
-          id: 'accessories',
-          name: 'Accessories',
-          items: [
-            { name: 'Watches', href: '#' },
-            { name: 'Wallets', href: '#' },
-            { name: 'Bags', href: '#' },
-            { name: 'Sunglasses', href: '#' },
-            { name: 'Hats', href: '#' },
-            { name: 'Belts', href: '#' },
-          ],
-        },
-        {
-          id: 'brands',
-          name: 'Brands',
-          items: [
-            { name: 'Re-Arranged', href: '#' },
-            { name: 'Counterfeit', href: '#' },
-            { name: 'Full Nelson', href: '#' },
-            { name: 'My Way', href: '#' },
-          ],
-        },
-      ],
-    },
-  ],
-  pages: [
-    { name: 'Company', href: '#' },
-    { name: 'Stores', href: '#' },
-  ],
-}
+import Search from './Search'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Navbar({ logout, currentUser }) {
-  const { eshopNavigation } = useStateContext()
-  const [open, setOpen] = useState(false)
+export default function Navbar({ logout }) {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { categoriesTree, currentUser, userToken } = useStateContext();
 
+  const [open, setOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchItems, setSearchItems] = useState([]);
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get('q') || '');
+  }, [searchParams]);
+
+
+  useEffect(() => {
+    if (!isSearchFocused) {
+      setSearchItems([]);
+      return;
+    }
+    if (searchQuery.trim().length > 2) {
+      userAxiosClient.get('/products', {
+        params: { search: searchQuery }
+      }).then(({ data }) => {
+        setSearchItems(data.data);
+      });
+    }
+  }, [searchQuery, isSearchFocused, setIsSearchFocused]);
+
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const url = `/search/?q=${encodeURIComponent(searchQuery.trim())}`;
+    setIsSearchFocused(false);
+    navigate(url);
+  };
+
+  const handleSearchDelete = () => {
+    setSearchParams((prevParams) => {
+      prevParams.delete('q');
+      return prevParams;
+    });
+    setSearchQuery('');
+    navigate('/');
+  };
+
+
+
+
 
   // const togleCartCtatus = () => {
 
@@ -145,6 +71,7 @@ export default function Navbar({ logout, currentUser }) {
 
   return (
     <>
+
       <Cart cartOpen={cartOpen} setCartOpen={setCartOpen} />
       <div className="bg-white">
         {/* Mobile menu */}
@@ -189,9 +116,9 @@ export default function Navbar({ logout, currentUser }) {
                   <Tab.Group as="div" className="mt-2">
                     <div className="border-b border-gray-200">
                       <Tab.List className="-mb-px flex space-x-8 px-4">
-                        {eshopNavigation.collections.map((collection) => (
+                        {categoriesTree.map((category) => (
                           <Tab
-                            key={collection.name}
+                            key={category.id}
                             className={({ selected }) =>
                               classNames(
                                 selected ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-900',
@@ -199,49 +126,67 @@ export default function Navbar({ logout, currentUser }) {
                               )
                             }
                           >
-                            {collection.name}
+                            {category.title}
                           </Tab>
                         ))}
                       </Tab.List>
                     </div>
                     <Tab.Panels as={Fragment}>
-                      {eshopNavigation.collections.map((collection) => (
-                        <Tab.Panel key={collection.name} className="space-y-10 px-4 pb-8 pt-10">
+                      {categoriesTree.map((category) => (
+                        <Tab.Panel key={category.id} className="space-y-10 px-4 pb-8 pt-10">
                           <div className="grid grid-cols-2 gap-x-4">
-                            {collection.featured.map((item) => (
-                              <div key={item.name} className="group relative text-sm">
+                            {category.featured_products.map((item, index) => (
+                              <div key={index} className="group relative text-sm">
                                 <div className="aspect-h-1 aspect-w-1 overflow-hidden rounded-lg bg-gray-100 group-hover:opacity-75">
-                                  <img src={item.imageSrc} alt={item.imageAlt} className="object-cover object-center" />
+                                  <img src={item.image_url} alt={item.image_alt} className="object-cover object-center" />
                                 </div>
-                                <a href={item.href} className="mt-6 block font-medium text-gray-900">
+                                <NavLink
+                                  to={`${item.categories[0].slug}/${item.slug}`}
+                                  className="mt-6 block font-medium text-gray-900"
+                                  onClick={() => setOpen(false)}
+                                >
                                   <span className="absolute inset-0 z-10" aria-hidden="true" />
-                                  {item.name}
-                                </a>
+                                  {item.title}
+                                </NavLink>
                                 <p aria-hidden="true" className="mt-1">
                                   Shop now
                                 </p>
                               </div>
                             ))}
                           </div>
-                          {collection.categories.map((category) => (
-                            <div key={category.name}>
-                              <p id={`${collection.id}-${category.id}-heading-mobile`} className="font-medium text-gray-900">
-                                {category.name}
-                              </p>
+                          {category.children.map((child) => (
+                            <div key={child.id}
+                              onClick={() => setOpen(false)}>
+                              <NavLink
+                                to={`${child.slug}`}
+                                id={`${category.id}-${child.id}-heading-mobile`}
+                                className="font-medium text-gray-900"
+                              // onClick={() => setOpen(false)}
+                              >
+                                {child.title}
+                              </NavLink>
                               <ul
                                 role="list"
-                                aria-labelledby={`${collection.id}-${category.id}-heading-mobile`}
+                                aria-labelledby={`${category.id}-${child.id}-heading-mobile`}
                                 className="mt-6 flex flex-col space-y-6"
                               >
-                                {category.sections.map((item) => (
-                                  <li key={item.name} className="flow-root">
-                                    <NavLink to={`/: ${item.name}`} className="-m-2 block p-2 text-gray-500" >
-                                      {item.name}
+                                {child.children.map((child) => (
+                                  <li key={child.id} className="flow-root">
+                                    <NavLink
+                                      to={`${child.slug}`}
+                                      className="-m-2 block p-2 text-gray-500"
+                                    // onClick={() => setOpen(false)}
+                                    >
+                                      {child.title}
                                     </NavLink>
 
-                                    <a href={item.href} className="-m-2 block p-2 text-gray-500">
-                                      {item.name}
-                                    </a>
+                                    <NavLink
+                                      to={child.slug}
+                                      className="-m-2 block p-2 text-gray-500"
+                                    // onClick={() => setOpen(false)}
+                                    >
+                                      {child.title}
+                                    </NavLink>
                                   </li>
                                 ))}
                               </ul>
@@ -262,27 +207,47 @@ export default function Navbar({ logout, currentUser }) {
                   ))}
                 </div> */}
 
-                  <div className="space-y-6 border-t border-gray-200 px-4 py-6">
+                  <div
+                    className="space-y-6 border-t border-gray-200 px-4 py-6"
+                    onClick={() => setOpen(false)}
+                  >
                     {/* User mobile................. */}
 
 
-                    <div className="flex items-center ">
+                    {userToken && <div className="flex items-center ">
                       <div className="flex-shrink-0">
                         <UserIcon className='w-8 h-8  p-1 rounded-full text-gray-800' />
                       </div>
-                      <div className="text-sm font-medium leading-none text-gray-700 hover:underline focus:outline-none">{currentUser.email}</div>
-                    </div>
+                      <div className="text-sm font-medium leading-none text-gray-700 hover:underline focus:outline-none">
+                        {currentUser && currentUser.email}
+                      </div>
+                    </div>}
 
-                    <div className="flow-root">
-                      <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
+                    {userToken && <div className="flow-root">
+                      <NavLink
+                        to={'/'}
+                        onClick={(e) => logout(e)}
+                        className="-m-2 block p-2 font-medium text-gray-900"
+                      >
+                        Log out
+                      </NavLink>
+                    </div>}
+                    {!userToken && <div className="flow-root">
+                      <NavLink
+                        to={'/login'}
+                        className="-m-2 block p-2 font-medium text-gray-900"
+                      >
                         Sign in
-                      </a>
-                    </div>
-                    <div className="flow-root">
-                      <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
+                      </NavLink>
+                    </div>}
+                    {!userToken && <div className="flow-root">
+                      <NavLink
+                        to={'/signup'}
+                        className="-m-2 block p-2 font-medium text-gray-900"
+                      >
                         Create account
-                      </a>
-                    </div>
+                      </NavLink>
+                    </div>}
                   </div>
 
                   {/* <div className="border-t border-gray-200 px-4 py-6">
@@ -331,9 +296,9 @@ export default function Navbar({ logout, currentUser }) {
                 {/* Flyout menus */}
                 <Popover.Group className="hidden lg:ml-8 lg:block lg:self-stretch">
                   <div className="flex h-full space-x-8">
-                    {eshopNavigation.collections.map((collection) => (
-                      <Popover key={collection.name} className="flex">
-                        {({ open }) => (
+                    {categoriesTree.map((category) => (
+                      <Popover key={category.id} className="flex">
+                        {({ open, close }) => (
                           <>
                             <div className="relative flex">
                               <Popover.Button
@@ -344,7 +309,7 @@ export default function Navbar({ logout, currentUser }) {
                                   'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out'
                                 )}
                               >
-                                {collection.name}
+                                {category.title}
                               </Popover.Button>
                             </div>
 
@@ -365,41 +330,63 @@ export default function Navbar({ logout, currentUser }) {
                                   <div className="mx-auto max-w-7xl px-8">
                                     <div className="grid grid-cols-2 gap-x-8 gap-y-10 py-16">
                                       <div className="col-start-2 grid grid-cols-2 gap-x-8">
-                                        {collection.featured.map((item) => (
-                                          <div key={item.name} className="group relative text-base sm:text-sm">
+                                        {category.featured_products.map((item, index) => (
+                                          <div key={index} className="group relative text-base sm:text-sm">
                                             <div className="aspect-h-1 aspect-w-1 overflow-hidden rounded-lg bg-gray-100 group-hover:opacity-75">
                                               <img
-                                                src={item.imageSrc}
-                                                alt={item.imageAlt}
+                                                src={item.image_url}
+                                                alt={item.image_alt}
                                                 className="object-cover object-center"
                                               />
                                             </div>
-                                            <a href={item.href} className="mt-6 block font-medium text-gray-900">
+
+                                            <NavLink
+                                              to={`${item.categories[0].slug}/${item.slug}`}
+                                              onClick={() => close()}
+                                              className="mt-6 block font-medium text-gray-900"
+                                            >
                                               <span className="absolute inset-0 z-10" aria-hidden="true" />
-                                              {item.name}
-                                            </a>
+                                              {item.title}
+                                            </NavLink>
+
                                             <p aria-hidden="true" className="mt-1">
                                               Shop now
                                             </p>
                                           </div>
                                         ))}
                                       </div>
-                                      <div className="row-start-1 grid grid-cols-3 gap-x-8 gap-y-10 text-sm">
-                                        {collection.categories.map((category) => (
-                                          <div key={category.name}>
-                                            <p id={`${category.name}-heading`} className="font-medium text-gray-900">
-                                              {category.name}
-                                            </p>
+                                      <div
+
+                                        className="row-start-1 grid grid-cols-3 gap-x-8 gap-y-10 text-sm"
+                                      >
+                                        {category.children.map((child) => (
+                                          <div
+                                            key={child.id}
+
+                                          >
+
+                                            <NavLink
+
+                                              onClick={() => close()}
+                                              to={`${child.slug}`} id={`${child.title}-heading`}
+                                              className="font-medium text-gray-900 ">
+                                              {child.title}
+                                            </NavLink>
+
                                             <ul
                                               role="list"
-                                              aria-labelledby={`${category.name}-heading`}
+                                              aria-labelledby={`${child.title}-heading`}
                                               className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
                                             >
-                                              {category.sections.map((item) => (
-                                                <li key={item.name} className="flex">
-                                                  <a href={item.href} className="hover:text-gray-800">
-                                                    {item.name}
-                                                  </a>
+                                              {child.children.map((child) => (
+                                                <li key={child.id} className="flex">
+                                                  <NavLink
+                                                    to={`${child.slug}`}
+                                                    onClick={() => close()}
+                                                    className="hover:text-gray-800"
+                                                  >
+                                                    {child.title}
+                                                  </NavLink>
                                                 </li>
                                               ))}
                                             </ul>
@@ -410,6 +397,7 @@ export default function Navbar({ logout, currentUser }) {
                                   </div>
                                 </div>
                               </Popover.Panel>
+
                             </Transition>
                           </>
                         )}
@@ -432,19 +420,31 @@ export default function Navbar({ logout, currentUser }) {
                   {/* User desktop.......... */}
 
 
+                  {/* Search */}
+
+
+                  <Search
+                    searchQuery={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    onSubmit={onSubmit}
+                    onClick={handleSearchDelete}
+                    placeholder='Search'
+                    onFocus={() => setIsSearchFocused(true)}
+                    onBlur={() => setIsSearchFocused(false)}
+                  />
+
                   <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
 
 
 
-
                     {/* Profile dropdown */}
-                    <Menu as="div" className="relative ml-3">
+                    {userToken && <Menu as="div" className="relative ml-3">
                       <div>
                         <Menu.Button className="relative flex max-w-xs items-center  text-gray-700 hover:text-gray-800 hover:underline focus:outline-none text-sm ">
                           <span className="absolute -inset-1.5" />
                           <span className="sr-only">Open user menu</span>
                           <UserIcon className='w-7 h-7  p-1 rounded-full text-gray-800' />
-                          {currentUser.email}
+                          {currentUser && currentUser.email}
                         </Menu.Button>
                       </div>
                       <Transition
@@ -460,8 +460,8 @@ export default function Navbar({ logout, currentUser }) {
 
                           <Menu.Item >
                             {({ active }) => (
-                              <a
-                                href='#'
+                              <NavLink
+                                to='/'
                                 onClick={(e) => logout(e)}
                                 className={classNames(
                                   active ? 'bg-gray-100' : '',
@@ -469,13 +469,13 @@ export default function Navbar({ logout, currentUser }) {
                                 )}
                               >
                                 Log Out
-                              </a>
+                              </NavLink>
                             )}
                           </Menu.Item>
 
                         </Menu.Items>
                       </Transition>
-                    </Menu>
+                    </Menu>}
 
 
 
@@ -483,13 +483,13 @@ export default function Navbar({ logout, currentUser }) {
 
 
 
-                    <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                    {!userToken && <> <NavLink to={'/login'} className="text-sm font-medium text-gray-700 hover:text-gray-800">
                       Sign in
-                    </a>
-                    <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
-                    <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                      Create account
-                    </a>
+                    </NavLink>
+                      <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
+                      <NavLink to={'/signup'} className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                        Create account
+                      </NavLink></>}
                   </div>
 
                   {/* <div className="hidden lg:ml-8 lg:flex">
@@ -504,13 +504,8 @@ export default function Navbar({ logout, currentUser }) {
                   </a>
                 </div> */}
 
-                  {/* Search */}
-                  <div className="flex lg:ml-6">
-                    <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
-                      <span className="sr-only">Search</span>
-                      <MagnifyingGlassIcon className="h-6 w-6" aria-hidden="true" />
-                    </a>
-                  </div>
+
+
 
                   {/* Cart */}
 
@@ -532,9 +527,46 @@ export default function Navbar({ logout, currentUser }) {
                 </div>
               </div>
             </div>
-          </nav>
-        </header>
+          </nav >
+        </header >
+      </div >
+
+      {/* Search List */}
+
+      <div className="grid grid-cols-5 gap-4 px-5 z-20 absolute w-full bg-slate-50 overflow-hidden">
+        <div className="col-span-1 hidden md:block">
+          {/* Left Sidebar Content */}
+        </div>
+
+        <div className="col-span-3">
+          <ul role="list" className="divide-y divide-gray-400 w-full px-5 ">
+            {isSearchFocused && searchQuery.trim().length > 2 && (
+              searchItems.map((product) => (
+                <li key={product.price} className="flex justify-between gap-x-6 py-5">
+                  <div className="flex min-w-0 gap-x-4">
+                    <img className="h-12 w-12 flex-none rounded-full bg-gray-50" src={product.image_url} alt="" />
+                    <div className="min-w-0 flex-auto">
+                      <p className="text-sm font-semibold leading-6 text-gray-900">{product.title}</p>
+                      <p className="mt-1 truncate text-xs leading-5 text-gray-500">{product.price}</p>
+                    </div>
+                  </div>
+                </li>
+              ))
+            )
+            }
+          </ul>
+          {isSearchFocused && searchItems.length === 0 && searchQuery.length > 2 &&
+            <li className="py-5 flex justify-center">
+              <p className="text-gray-500 ">No products available</p>
+            </li>
+          }
+        </div>
+
+        <div className="col-span-1 hidden md:block">
+          {/* Right Sidebar Content */}
+        </div>
       </div>
+
     </>
   )
 }

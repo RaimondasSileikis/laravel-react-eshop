@@ -1,115 +1,98 @@
 import PageComponent from '../../components/public/PageComponent'
 import Breadcrumb from '../../components/public/Breadcrumb'
 import Products from '../../components/public/Products';
-import { useStateContext } from '../../contexts/ContextProvider';
-import { NavLink, useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { userAxiosClient } from '../../axios';
+import Categories from '../../components/public/Categories';
+import Search from '../../components/public/Search';
 
-
-const products = [
-  // {
-  //   price: 25, id: 'Tops', name: 'Tops', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg',
-  //   imageAlt: 'Hand holding black machined steel mechanical pencil with brass tip and top.',
-  // },
-  {
-    price: 25, id: 'Dresses', name: 'Dresses', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg',
-    imageAlt: 'Hand holding black machined steel mechanical pencil with brass tip and top.',
-  },
-  {
-    price: 25, id: 'Pants', name: 'Pants', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg',
-    imageAlt: 'Hand holding black machined steel mechanical pencil with brass tip and top.',
-  },
-  {
-    price: 25, id: 'Denim', name: 'Denim', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg',
-    imageAlt: 'Hand holding black machined steel mechanical pencil with brass tip and top.',
-  },
-  {
-    price: 25, id: 'Sweaters', name: 'Sweaters', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg',
-    imageAlt: 'Hand holding black machined steel mechanical pencil with brass tip and top.',
-  },
-  {
-    price: 25, id: 'T-Shirts', name: 'T-Shirts', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg',
-    imageAlt: 'Hand holding black machined steel mechanical pencil with brass tip and top.',
-  },
-  {
-    price: 25, id: 'Jackets', name: 'Jackets', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg',
-    imageAlt: 'Hand holding black machined steel mechanical pencil with brass tip and top.',
-  },
-  {
-    price: 25, id: 'Activewear', name: 'Activewear', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg',
-    imageAlt: 'Hand holding black machined steel mechanical pencil with brass tip and top.',
-  },
-  {
-    price: 25, id: 'Browse All', name: 'Browse All', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg',
-    imageAlt: 'Hand holding black machined steel mechanical pencil with brass tip and top.',
-  },
-  {
-    price: 25, id: 'Watches', name: 'Watches', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-01.jpg',
-    imageAlt: 'Models sitting back to back, wearing Basic Tee in black and bone.',
-  },
-  {
-    price: 25, id: 'Wallets', name: 'Wallets', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-01.jpg',
-    imageAlt: 'Models sitting back to back, wearing Basic Tee in black and bone.',
-  },
-  {
-    price: 25, id: 'Bags', name: 'Bags', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-01.jpg',
-    imageAlt: 'Models sitting back to back, wearing Basic Tee in black and bone.',
-  },
-  {
-    price: 25, id: 'Sunglasses', name: 'Sunglasses', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-01.jpg',
-    imageAlt: 'Models sitting back to back, wearing Basic Tee in black and bone.',
-  },
-  {
-    price: 25, id: 'Hats', name: 'Hats', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-01.jpg',
-    imageAlt: 'Models sitting back to back, wearing Basic Tee in black and bone.',
-  },
-  {
-    price: 25, id: 'Belts', name: 'Belts', href: '#', imageSrc: 'https://tailwindui.com/img/ecommerce-images/mega-menu-category-01.jpg',
-    imageAlt: 'Models sitting back to back, wearing Basic Tee in black and bone.',
-  },
-]
 
 export default function ProductsByCategory() {
-  const { eshopNavigation } = useStateContext()
 
-  const params = useParams()
-  console.log('params', params);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [products, setProducts] = useState([]);
+  const [category, setCategory] = useState({});
+  const [categories, setCategories] = useState([]);
+  const { categorySlug } = useParams();
+  
+  useEffect(() => {
+    setSearchQuery(searchParams.get('cq') || '');
+  }, [searchParams]);
 
-  const selectedGroup = eshopNavigation.collections
-    .flatMap(collection => [
-      ...(collection.id === params.groupSlug ? [collection] : []),
-      ...(collection.categories.filter(cat => cat.id === params.groupSlug)),
-      ...(collection.categories.flatMap(cat => cat.sections.filter(sec => sec.id === params.groupSlug)))
-    ])
-    .find(item => item);
 
-  console.log('selected:', selectedGroup);
+  useEffect(() => {
+    userAxiosClient.get(`categories/get-by-slug/${categorySlug}`)
+      .then(({ data }) => {
+        setCategory(data.data);
+        setCategories(data.data.childrens)
+      })
+      .catch(error => {
+        console.error('Error fetching category data:', error);
+      });
+  }, [categorySlug]);
 
-  const selectedGroupCategories = selectedGroup.categories || selectedGroup.sections
+
+  useEffect(() => {
+    const search = searchParams.get('cq') || '';
+    userAxiosClient.get(`products/${categorySlug}`, {
+      params: { search }
+    })
+      .then(({ data }) => {
+        setProducts(data.data);
+      })
+      .catch(error => {
+        console.error('Error fetching products data:', error);
+      });
+  }, [searchParams, setProducts, categorySlug]);
+
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const searchValue = searchQuery.trim();
+    setSearchParams((prevParams) => {
+      searchValue === null
+        ? prevParams.delete('cq')
+        : prevParams.set('cq', searchValue);
+      return prevParams;
+    });
+  };
+
+  const handleSearchDelete = () => {
+    setSearchQuery('')
+    setSearchParams((prevParams) => {
+      prevParams.delete('cq');
+      return prevParams;
+    });
+  };
 
   return (
-    <PageComponent>
+    <PageComponent >
       <Breadcrumb />
-      <div className="grid grid-cols-4 gap-x-2 gap-y-10 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-9 xl:gap-x-8 my-10">
-        {selectedGroupCategories && selectedGroupCategories.map((category) => (
-          <NavLink
-            key={category.id} to={`/${category.id}`} className="group flex flex-col items-center">
-            <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-              <img
-                src={category.imageSrc}
-                alt={category.imageAlt}
-                className="h-full w-full object-cover object-center group-hover:opacity-75"
-              />
-            </div>
-            <h3 className="mt-4 text-sm text-gray-700 ">{category.name}</h3>
-
-          </NavLink>
-        ))}
-      </div>
-
+      <Categories categories={categories} />
       <hr />
-      {/* <p className='flex p-4'> {selectedGroup.description}</p> */}
+      <h3 className='flex font-semibold text-lg p-4'>{category.title}</h3>
+      <p className='flex p-4'>{category.description}</p>
+
+      {/* Sort in results  */}
+
+      <Search
+        searchQuery={searchQuery}
+        onChange={e => setSearchQuery(e.target.value)}
+        onSubmit={handleSearchSubmit}
+        onClick={handleSearchDelete}
+        placeholder='Search in category'
+
+      />
 
       <Products products={products} />
+      {products.length === 0 &&
+        <li className="py-5 flex justify-center">
+          <p className="text-gray-500 ">No products available</p>
+        </li>
+      }
+
     </PageComponent>
   )
 }

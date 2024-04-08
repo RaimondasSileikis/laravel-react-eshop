@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UserAuthController;
+// use App\Models\ProductCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +19,32 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+
+Route::middleware(['auth:sanctum', 'type.user'])->group(function () {
+
+    Route::get('/get-user', [UserAuthController::class, 'me']);
+    Route::post('/user-logout', [UserAuthController::class, 'logout']);
+
+
 });
+
+Route::middleware(['auth:sanctum,', 'type.admin'])->group(function () {
+    // Admin dashboard routes
+    Route::get('/get-admin', [AdminAuthController::class, 'me']);
+    Route::post('/admin-logout', [AdminAuthController::class, 'logout']);
+});
+
+
+Route::post('/signup', [UserAuthController::class, 'signup']);
+Route::post('/login', [UserAuthController::class, 'login']);
+Route::post('/adminlogin', [AdminAuthController::class, 'login']);
+
+Route::get('/tree', [CategoryController::class, 'getAsTree']);
+Route::get('/products/{category:slug}', [ProductController::class, 'byCategory']);
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/get-by-slug/{product:slug}', [ProductController::class, 'getBySlug']);
+Route::get('/categories/get-by-slug/{category:slug}', [CategoryController::class, 'getBySlug']);

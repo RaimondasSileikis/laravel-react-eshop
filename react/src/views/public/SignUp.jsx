@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import axiosClient from '../../axios';
+import { userAxiosClient }from '../../axios';
+import { useStateContext } from '../../contexts/ContextProvider';
 
 export default function Signup() {
-  // const { setCurrentUser, setUserToken } = useStateContext();
-  const [fullName, setFullName] = useState('');
+  const { setCurrentUser, setUserToken } = useStateContext();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
@@ -14,15 +17,17 @@ export default function Signup() {
     e.preventDefault();
     setError({ __html: '' });
     console.log('signup');
-    axiosClient.post('/signup', {
-      name: fullName,
+    userAxiosClient.post('/signup', {
+      first_name: firstName,
+      last_name: lastName,
+      phone,
       email,
       password,
       password_confirmation: passwordConfirmation,
     })
       .then(({ data }) => {
-        // setCurrentUser(data.user);
-        // setUserToken(data.token);
+        setCurrentUser(data.user);
+        setUserToken(data.token);
       })
       .catch((error) => {
         if (error.response) {
@@ -50,19 +55,55 @@ export default function Signup() {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={onSubmit} className="space-y-6" action="#" method="POST">
           <div>
-            <label htmlFor="full-name" className="block text-sm font-medium leading-6 text-gray-900">
-              Full Name
+            <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
+              First Name
             </label>
             <div className="mt-2">
               <input
-                id="full-name"
+                id="first-name"
                 name="name"
                 type="text"
                 required
-                value={fullName}
-                onChange={e => setFullName(e.target.value)}
+                value={firstName}
+                onChange={e => setFirstName(e.target.value)}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="Full name"
+                placeholder="First name"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="last-name" className="block text-sm font-medium leading-6 text-gray-900">
+              Last Name
+            </label>
+            <div className="mt-2">
+              <input
+                id="last-name"
+                name="name"
+                type="text"
+                required
+                value={lastName}
+                onChange={e => setLastName(e.target.value)}
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Last name"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-900">
+              Phone
+            </label>
+            <div className="mt-2">
+              <input
+                id="phone"
+                name="phone"
+                type="text"
+
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Phone"
               />
             </div>
           </div>

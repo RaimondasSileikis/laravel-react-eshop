@@ -1,24 +1,30 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import axiosClient from "../../axios";
+import { Link, useNavigate } from "react-router-dom";
+
+import { useStateContext } from "../../contexts/ContextProvider";
+import { userAxiosClient } from "../../axios";
 
 export default function Login () {
-  // const { setCurrentUser, setUserToken } = useStateContext();
+  const { setCurrentUser, setUserToken, userToken, currentUser, setUserType, setUserName } = useStateContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState({ __html: '' });
+  const navigate = useNavigate()
+
 
   const onSubmit = (e) => {
     e.preventDefault();
     setError({ __html: '' });
     console.log('login');
-    axiosClient.post('/login', {
+    userAxiosClient.post('/login', {
       email,
       password,
     })
       .then(({ data }) => {
-        // setCurrentUser(data.user);
-        // setUserToken(data.token)
+        setCurrentUser(data.user);
+        setUserToken(data.token);
+
+
         console.log('set user', data.user);
       })
       .catch((error) => {
@@ -30,6 +36,11 @@ export default function Login () {
       })
   }
 
+  if (userToken) {
+    navigate('/');
+  }
+
+console.log('user', currentUser);
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">

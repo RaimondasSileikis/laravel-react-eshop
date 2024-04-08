@@ -3,15 +3,13 @@ import { useStateContext } from '../../contexts/ContextProvider'
 
 
 export default function ClientLayout() {
-  const { userToken, userTypeAdmin} = useStateContext();
+  const { userToken} = useStateContext();
 
-  // const userToken = null;
-  // const userTypeAdmin = 1
-
+console.log('client lay', userToken);
   const location = useLocation()
   const pathname = location?.state?.pathname
 
-  if (!userToken || userTypeAdmin) {
+  if (!userToken) {
     const redirectPath = `/login?message=You must login first.&redirectTo=${pathname}`;
     return (
       <>
@@ -26,7 +24,6 @@ export default function ClientLayout() {
 
   return (
     <div className="min-h-full">ClientLayout
-
       <Outlet />
     </div>
   )

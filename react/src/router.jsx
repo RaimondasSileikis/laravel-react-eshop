@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom"
+import { Navigate, createBrowserRouter } from "react-router-dom"
 
 import Orders from "./views/admin/Orders";
 import AdminDashboard from "./views/admin/AdminDashboard";
@@ -18,6 +18,9 @@ import ProductView from "./views/public/ProductView";
 import ProductsList from "./views/admin/ProductsList";
 
 import ProductsByCategory from "./views/public/ProductsByGroup";
+import AdminLogin from "./views/admin/AdminLogin";
+import LoginAdminLayout from "./components/admin/LoginAdminLayout";
+import ProductsBySearch from "./views/public/ProductsBySearch";
 
 
 
@@ -35,11 +38,15 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: '/:groupSlug',
-        element: <ProductsByCategory/>,
+        path: 'search',
+        element: <ProductsBySearch />,
       },
       {
-        path: '/:groupSlug/:productID',
+        path: ':categorySlug',
+        element: <ProductsByCategory />,
+      },
+      {
+        path: ':categorySlug/:productSlug',
         element: <ProductView />,
       },
       {
@@ -50,33 +57,78 @@ const router = createBrowserRouter([
         path: 'signup',
         element: <SignUp />,
       },
+
+      {
+        path: 'profile',
+        element: <ClientLayout />,
+        children: [
+          {
+            index: true,
+            element: <Profile />,
+          },
+          // {
+          //   path: '/profile',
+          //   element: <Navigate to='/' />,
+          // },
+
+
+          {
+            path: 'my-orders',
+            element: <MyOrders />,
+          },
+        ],
+      },
+
+
+
+
     ],
   },
 
-  {
-    path: '/profile',
-    element: <ClientLayout />,
-    children: [
-      {
-        index: true,
-        element: <Profile />,
-      },
-      //   path: '/profile',
-      //   element: <Navigate to='/' />,
-      // },
-      {
-        path: 'my-orders',
-        element: <MyOrders />,
-      },
-    ],
-  },
+  // {
+  //   path: '/',
+  //   element: <ClientLayout />,
+  //   children: [
+
+
+
+  // {
+  //   index: true,
+  //   element: <Profile />,
+  // },
+  //   path: '/profile',
+  //   element: <Navigate to='/' />,
+  // },
+
+
+
+
+  //     {
+  //       path: '/client',
+  //       element: <Navigate to='/' />,
+  //     },
+
+  //     {
+  //       path: 'profile',
+  //       element: <Profile />,
+  //     },
+  //     {
+  //       path: 'my-orders',
+  //       element: <MyOrders />,
+  //     },
+  //   ],
+  // },
 
   {
     path: '/admin',
     element: <AdminLayout />,
     children: [
       {
-        index: true,
+        patch: 'dashboard',
+        element: <Navigate to='/admin' />,
+      },
+      {
+        patch: 'dashboard',
         element: <AdminDashboard />,
       },
       {
@@ -93,6 +145,11 @@ const router = createBrowserRouter([
       },
     ],
   },
+
+      {
+        path: '/adminlogin',
+        element: <AdminLogin />,
+      },
 
 ])
 
