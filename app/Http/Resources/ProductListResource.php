@@ -22,10 +22,7 @@ class ProductListResource extends JsonResource
             'image_url' => $this->image,
             'image_alt' => $this->title,
             'price' => $this->price,
-            // 'categories' => $this->categories,
             'categories' => CategoryResource::collection($this->categories),
-            // 'category_id' => $this->pivot ? $this->pivot->category_id : null,
-            // 'quantity' => $this->quantity,
             'updated_at' => ( new \DateTime($this->updated_at) )->format('Y-m-d H:i:s'),
         ];
     }

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('slug', 2000);
             $table->longText('description')->nullable();
             $table->string('image', 2000)->nullable();
-            $table->enum('featured', ['Active', 'Inactive'])->default('Inactive');
+            $table->enum('featured', ['Active', 'Inactive'])->default('Active');
             $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->decimal('price', 20, 2);
             $table->timestamps();

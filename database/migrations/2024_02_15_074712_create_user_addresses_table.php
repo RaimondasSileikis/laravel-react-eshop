@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\User::class, 'user_id');
             $table->foreignIdFor(\App\Models\Country::class, 'country_code');
             $table->string('type', 45);
+            $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->string('address1', 255);
             $table->string('address2', 255);
             $table->string('city', 255);

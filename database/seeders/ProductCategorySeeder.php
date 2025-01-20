@@ -14,11 +14,11 @@ class ProductCategorySeeder extends Seeder
     public function run(): void
     {
 
-        foreach(range(1, 30) as $_) {
-        ProductCategory::create([
-            'category_id' => rand(1,25),
-            'product_id' => rand(1, 100),
-        ]);
-    }
+        foreach (range(1, 50) as $i) {
+            ProductCategory::create([
+                'category_id' => rand(9, 25),
+                'product_id' => $i,
+            ]);
+        }
     }
 }

@@ -15,11 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(\App\Models\User::class, 'user_id');
             $table->decimal('total_price', 20, 2);
-            $table->enum('status', ['Processing', 'Confirmed', 'Shipping', 'Delivered', 'Cancelled'])->default('Processing');
+            $table->enum('status', ['unpaid', 'paid', 'cancelled', 'shipped', 'completed'])->default('unpaid');
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */

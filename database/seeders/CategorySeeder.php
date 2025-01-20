@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Alirezasedghi\LaravelImageFaker\Services\Picsum;
 use App\Models\Category;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -13,26 +14,20 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-
         $categories = self::categories();
         $subCategories = self::subCategories();
-        $width = 640;
-        $height = 480;
 
         Category::create([
             'title' => 'men',
             'description' => fake()->realText(),
-            // 'image' => fake()->imageUrl($width, $height, 'men'),
-            'image' => "https://tailwindui.com/img/ecommerce-images/home-page-04-collection-01.jpg",
+            'image' => $this->generateImageUrl(),
         ]);
 
         Category::create([
             'title' => 'women',
             'description' => fake()->realText(),
-            // 'image' => fake()->imageUrl($width, $height, 'women'),
-            'image' => "https://tailwindui.com/img/ecommerce-images/home-page-04-collection-02.jpg",
+            'image' => $this->generateImageUrl(),
         ]);
-
 
         foreach ($categories as $category) {
 
@@ -40,10 +35,9 @@ class CategorySeeder extends Seeder
                 'title' => $category,
                 'parent_id' => rand(1, 2),
                 'description' => fake()->realText(),
-                'image' => fake()->imageUrl($width, $height, $category),
+                'image' => $this->generateImageUrl(),
             ]);
         }
-
 
         foreach ($subCategories as $subCategory) {
 
@@ -51,22 +45,48 @@ class CategorySeeder extends Seeder
                 'title' => $subCategory,
                 'parent_id' => rand(3, count($categories) + 2),
                 'description' => fake()->realText(),
-                'image' => fake()->imageUrl($width, $height, $subCategory),
+                'image' => $this->generateImageUrl(),
             ]);
         }
     }
+
     public static function categories()
     {
         return ([
-            'clothing', 'accessories', 'brands', 'carry', 'shoes', 'new arrivals',
-
+            'clothing',
+            'accessories',
+            'brands',
+            'carry',
+            'shoes',
+            'new arrivals',
         ]);
     }
+
     public static function subCategories()
     {
         return ([
-
-            'tops', 'pants', 'sweaters', 't-shirts', 'jackets', 'activewear', 'watches', 'wallets', 'bags', 'sunglasses', 'hats', 'belts', 'sneakers', 'boots', 'flats', 'socks', 'sandals',
+            'tops',
+            'pants',
+            'sweaters',
+            't-shirts',
+            'jackets',
+            'activewear',
+            'watches',
+            'wallets',
+            'bags',
+            'sunglasses',
+            'hats',
+            'belts',
+            'sneakers',
+            'boots',
+            'flats',
+            'socks',
+            'sandals',
         ]);
+    }
+
+    private function generateImageUrl(): string
+    {
+        return 'https://picsum.photos/800/600?random=' . rand(1000, 9999);
     }
 }

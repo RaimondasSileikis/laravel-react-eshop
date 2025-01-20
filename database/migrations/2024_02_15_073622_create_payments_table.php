@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\User::class, 'user_id');
             $table->foreignIdFor(\App\Models\Order::class, 'order_id');
             $table->decimal('amount', 10, 2);
-            $table->string('status', 45);
+            $table->enum('status', ['Pending', 'Paid', 'Failed'])->default('Pending');
             $table->string('type', 45);
             $table->timestamps();
         });

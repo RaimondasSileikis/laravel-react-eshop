@@ -14,24 +14,14 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        $imageFaker = (new Picsum())->imageUrl(width: 800, height: 600);
-      
-
-
-        foreach(range(1, 100) as $_) {
+        foreach(range(1, 50) as $_) {
 
             Product::create([
                 'title' => fake()->sentence(rand(2, 5)),
                 'description' => fake()->realText(rand(50, 200)),
-                'image' => $imageFaker,
+                'image' => (new Picsum())->imageUrl(800, 600) . "?random=" . rand(1000, 9999),
                 'price' => fake()->randomFloat(2, 2, 5),
             ]);
         }
     }
-
-
-
-
-
-
 }

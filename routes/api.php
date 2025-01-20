@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserAuthController;
-// use App\Models\ProductCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,32 +22,46 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
-
-Route::middleware(['auth:sanctum', 'type.user'])->group(function () {
-
-    Route::get('/get-user', [UserAuthController::class, 'me']);
-    Route::post('/user-logout', [UserAuthController::class, 'logout']);
-
-
+// Authentication Routes
+Route::prefix('auth')->group(function () {
+    Route::post('sign-up', [AuthController::class, 'signUp'])->name('auth.signUp');
+    Route::post('login', [AuthController::class, 'login'])->name('auth.login');
 });
 
-Route::middleware(['auth:sanctum,', 'type.admin'])->group(function () {
-    // Admin dashboard routes
-    Route::get('/get-admin', [AdminAuthController::class, 'me']);
-    Route::post('/admin-logout', [AdminAuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('auth')->group(function () {
+        Route::get('/get-me', [AuthController::class, 'getMe'])->name('auth.getMe');
+        Route::post('/user-logout', [AuthController::class, 'logout'])->name('auth.logout');
+    });
 });
 
+// Shop Routes
+Route::prefix('shop')->group(function () {
+    Route::prefix('categories')->group(function () {
+        Route::get('tree', [CategoryController::class, 'getAsTree'])->name('shop.categories.tree');
+        Route::get('get-category-by-slug/{category:slug}', [CategoryController::class, 'getCategoryBySlug'])->name('shop.categories.getBySlug');
+    });
 
-Route::post('/signup', [UserAuthController::class, 'signup']);
-Route::post('/login', [UserAuthController::class, 'login']);
-Route::post('/adminlogin', [AdminAuthController::class, 'login']);
+    Route::prefix('products')->group(function () {
+        Route::get('{category:slug}', [ProductController::class, 'getProductsByCategory'])->name('shop.products.getByCategory');
+        Route::get('/', [ProductController::class, 'getAllProducts'])->name('shop.products');
+        Route::get('get-by-slug/{product:slug}', [ProductController::class, 'getProductBySlug'])->name('shop.products.getBySlug');
+    });
+});
 
-Route::get('/tree', [CategoryController::class, 'getAsTree']);
-Route::get('/products/{category:slug}', [ProductController::class, 'byCategory']);
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/get-by-slug/{product:slug}', [ProductController::class, 'getBySlug']);
-Route::get('/categories/get-by-slug/{category:slug}', [CategoryController::class, 'getBySlug']);
+Route::middleware('auth:sanctum')->prefix('shop')->group(function () {
+    Route::apiResource('cart', \App\Http\Controllers\CartController::class);
+    Route::apiResource('/shopper/orders', \App\Http\Controllers\OrderController::class);
+    Route::post('/cart/merge-guest-cart', [CartController::class, 'mergeGuestCart'])->name('shop.cart.mergeGuestCart');
+});
+
+// Admin Routes
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::apiResource('products', \App\Http\Controllers\Admin\ProductController::class);
+        Route::apiResource('categories', \App\Http\Controllers\Admin\CategoryController::class);
+        Route::apiResource('orders', \App\Http\Controllers\Admin\OrderController::class);
+        Route::get('orders-statuses', [\App\Http\Controllers\Admin\OrderController::class, 'getStatuses'])->name('admin.orders.statuses');
+        Route::get('dashboard/overview', [\App\Http\Controllers\Admin\DashboardController::class, 'getOverview'])->name('admin.dashboard.overview');
+    });
+});

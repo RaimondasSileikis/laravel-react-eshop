@@ -7,7 +7,6 @@ namespace Database\Seeders;
 use App\Models\Admin;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,26 +18,13 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             AdminSeeder::class,
+            UserSeeder::class,
             CountrySeeder::class,
-
             CategorySeeder::class,
             ProductSeeder::class,
             ProductCategorySeeder::class,
+            OrderItemSeeder::class,
+            OrderSeeder::class,
         ]);
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-
-        // \App\Models\Admin::factory(10)->create();
-
-        // \App\Models\Admin::factory()->create([
-        //     'name' => 'admin',
-        //     'email' => 'admin@example.com',
-        //     'password' => Hash::make('123')
-        // ]);
-
     }
 }

@@ -19,10 +19,10 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'first_name',
-        'last_name',
+        'name',
         'email',
         'password',
+        'is_admin'
     ];
 
     /**
@@ -45,12 +45,10 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-
-    private function _getAddresses(): HasOne
+    public function customer()
     {
-        return $this->hasOne(UserAddress::class, 'user_id');
+        return $this->hasOne(Customer::class);
     }
-
 
     public function cart_items()
     {

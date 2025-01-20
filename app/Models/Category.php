@@ -47,7 +47,7 @@ class Category extends Model
     }
 
 
-    public function childrens()
+    public function children()
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
@@ -66,15 +66,24 @@ class Category extends Model
         foreach ($allCategories as $category) {
             $allProducts = $allProducts->merge($category->products->where('featured', 'Active'));
         }
-
         return $allProducts;
     }
 
+
+    public static function getAllParents(Category $category, &$result = [])
+    {
+        if ($category->parent) {
+            $result[] = $category->parent;
+            self::getAllParents($category->parent, $result);
+        }
+        return $result;
+    }
 
 
     public static function getAllChildrenByParent(Category $category)
     {
         $categories = Category::where('status', 'Active')->orderBy('parent_id')->get();
+
         $result[] = $category;
         self::getCategoriesArray($categories, $category->id, $result);
 
@@ -91,7 +100,6 @@ class Category extends Model
             }
         }
     }
-
 
 
     public static function getActiveAsTree($resourceClassName = null)

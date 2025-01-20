@@ -17,10 +17,16 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
 
-        if (Auth::user()->tokenCan('role:admin')) {
+        $user = $request->user();
+        if ($user) {
+            if (!$user->is_admin) {
+                $user->currentAccessToken()->delete();
+                return response()->json(['error' => 'Access denied.'], 403);
+            }
+
             return $next($request);
         }
 
-        return response()->json('Not Authorized', 401);
+        return response()->json(['error' => 'Unauthorized.'], 401);
     }
 }

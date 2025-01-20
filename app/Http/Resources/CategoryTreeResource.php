@@ -21,8 +21,10 @@ class CategoryTreeResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'slug' => $this->slug,
+            'status' => $this->status,
             'image_url' => $this->image,
             'image_alt' => $this->title,
+            'parent' => $this->parent ? new CategoryResource($this->parent) : null,
         ];
 
         if ($this->children ?? false) {
@@ -30,9 +32,7 @@ class CategoryTreeResource extends JsonResource
         }
 
         if ($this->parent_id === null) {
-            // $data['featured_products'] = $this->resource->featured();
             $data['featured_products'] = ProductListResource::collection($this->resource->featured());
-
         }
 
         return $data;

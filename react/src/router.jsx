@@ -1,156 +1,92 @@
-import { Navigate, createBrowserRouter } from "react-router-dom"
+import { createBrowserRouter } from "react-router-dom"
+import {DashboardLayout, ShopPrivateLayout, ShopPublicLayout} from "./layouts";
+import {SignUp, Login, AuthProvider, RequireAuth} from "./features/auth";
+import {Dashboard} from "./features/dashboard";
+import {ProductsList, ProductDetail, ProductEdit, ProductCreate} from "./features/dashboard/products";
+import {CategoriesList, CategoryDetail, CategoryCreate, CategoryEdit} from "./features/dashboard/categories";
+import {OrdersList, OrderDetail } from "./features/dashboard/orders";
+import {Home} from "./features/shop";
+import {Products, ProductView, ProductsByCategory} from "./features/shop/shopProducts";
+import {MyOrders, Profile, MyOrderView} from "./features/shop/shopper";
+import NotFound from "./shared/NotFound";
 
-import Orders from "./views/admin/Orders";
-import AdminDashboard from "./views/admin/AdminDashboard";
-import Home from "./views/public/Home";
-import SignUp from "./views/public/SignUp";
-import Login from "./views/public/Login";
-import AdminLayout from "./components/admin/AdminLayout";
-import MyOrders from "./views/client/MyOrders";
-
-
-
-import Profile from "./views/client/Profile";
-import ClientLayout from "./components/client/ClientLayout";
-import PublicLayout from "./components/public/PublicLayout";
-import ProductView from "./views/public/ProductView";
-
-import ProductsList from "./views/admin/ProductsList";
-
-import ProductsByCategory from "./views/public/ProductsByGroup";
-import AdminLogin from "./views/admin/AdminLogin";
-import LoginAdminLayout from "./components/admin/LoginAdminLayout";
-import ProductsBySearch from "./views/public/ProductsBySearch";
-
-
-
-const router = createBrowserRouter([
+const routes = [
+  {
+    path: '/login',
+    element: <Login />,
+  },
+  {
+    path: '/signup',
+    element: <SignUp />,
+  },
   {
     path: '/',
-    element: <PublicLayout />,
+    element: <ShopPublicLayout />,
+    meta: { requiresAuth: true },
     children: [
-      // {
-      //   path: '/home',
-      //   element: <Navigate to='/' />,
-      // },
-      {
-        index: true,
-        element: <Home />,
-      },
-      {
-        path: 'search',
-        element: <ProductsBySearch />,
-      },
-      {
-        path: ':categorySlug',
-        element: <ProductsByCategory />,
-      },
-      {
-        path: ':categorySlug/:productSlug',
-        element: <ProductView />,
-      },
-      {
-        path: 'login',
-        element: <Login />
-      },
-      {
-        path: 'signup',
-        element: <SignUp />,
-      },
-
-      {
-        path: 'profile',
-        element: <ClientLayout />,
-        children: [
-          {
-            index: true,
-            element: <Profile />,
-          },
-          // {
-          //   path: '/profile',
-          //   element: <Navigate to='/' />,
-          // },
-
-
-          {
-            path: 'my-orders',
-            element: <MyOrders />,
-          },
-        ],
-      },
-
-
-
-
+      { index: true, element: <Home /> },
+      { path: 'all', element: <Products /> },
+      { path: ':categorySlug', element: <ProductsByCategory /> },
+      { path: ':categorySlug/:productSlug', element: <ProductView /> },
     ],
   },
-
-  // {
-  //   path: '/',
-  //   element: <ClientLayout />,
-  //   children: [
-
-
-
-  // {
-  //   index: true,
-  //   element: <Profile />,
-  // },
-  //   path: '/profile',
-  //   element: <Navigate to='/' />,
-  // },
-
-
-
-
-  //     {
-  //       path: '/client',
-  //       element: <Navigate to='/' />,
-  //     },
-
-  //     {
-  //       path: 'profile',
-  //       element: <Profile />,
-  //     },
-  //     {
-  //       path: 'my-orders',
-  //       element: <MyOrders />,
-  //     },
-  //   ],
-  // },
-
   {
-    path: '/admin',
-    element: <AdminLayout />,
+    path: '/profile',
+    element: <ShopPrivateLayout />,
+    meta: { requiresAuth: true, requiresPrivate: true },
     children: [
-      {
-        patch: 'dashboard',
-        element: <Navigate to='/admin' />,
-      },
-      {
-        patch: 'dashboard',
-        element: <AdminDashboard />,
-      },
-      {
-        path: 'items',
-        element: <ProductsList />,
-      },
-      {
-        path: 'item:id',
-        element: <ProductsList />,
-      },
-      {
-        path: 'orders',
-        element: <Orders />,
-      },
+      { index: true, element: <Profile /> },
+      { path: 'my-orders', element: <MyOrders /> },
+      { path: 'my-orders/:id', element: <MyOrderView /> },
     ],
   },
+  {
+    path: '/dashboard',
+    element: <DashboardLayout />,
+    meta: { requiresAuth: true, requiresAdmin: true },
+    children: [
+      { index: true, element: <Dashboard /> },
+      { path: 'products', element: <ProductsList /> },
+      { path: 'products/:id', element: <ProductDetail /> },
+      { path: 'products/create', element: <ProductCreate /> },
+      { path: 'products/edit/:id', element: <ProductEdit /> },
+      { path: 'categories', element: <CategoriesList /> },
+      { path: 'categories/:id', element: <CategoryDetail /> },
+      { path: 'categories/create', element: <CategoryCreate /> },
+      { path: 'categories/edit/:id', element: <CategoryEdit /> },
+      { path: 'orders', element: <OrdersList /> },
+      { path: 'orders/:id', element: <OrderDetail /> },
+    ],
+  },
+  {
+    path: '*',
+    element: <NotFound />,
+  },
+  {
+    path: '/not-found',
+    element: <NotFound />,
+  },
+];
 
-      {
-        path: '/adminlogin',
-        element: <AdminLogin />,
-      },
-
-])
+const router = createBrowserRouter(
+  routes.map((route) => {
+    if (route.meta?.requiresAuth) {
+      return {
+        ...route,
+        element: (
+          <AuthProvider >
+            <RequireAuth
+              requiresAdmin={route?.meta?.requiresAdmin}
+              requiresPrivate={route?.meta?.requiresPrivate}
+            >
+              {route.element}
+            </RequireAuth>
+          </AuthProvider>
+        ),
+      };
+    }
+    return route;
+  })
+);
 
 export default router;
