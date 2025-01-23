@@ -93,6 +93,7 @@ export default function ProductForm({
             type="number"
             name="price"
             id="price"
+            min="0"
             value={formData.price}
             onChange={handleChange}
             className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"

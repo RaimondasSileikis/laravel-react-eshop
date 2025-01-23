@@ -28,7 +28,7 @@ class AdminProductRequest extends FormRequest
             'image' => ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'status' => ['required', 'string', 'in:Active,Inactive'],
             'featured' => ['required', 'string', 'in:Active,Inactive'],
-            'price' => ['required', 'numeric'],
+            'price' => ['required', 'numeric', 'min:0'],
             'category_id' => [
                 'required',
                 'exists:categories,id',
