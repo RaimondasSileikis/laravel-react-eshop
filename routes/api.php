@@ -50,17 +50,17 @@ Route::prefix('shop')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->prefix('shop')->group(function () {
-    Route::apiResource('cart', \App\Http\Controllers\CartController::class);
-    Route::apiResource('/shopper/orders', \App\Http\Controllers\OrderController::class);
+    Route::apiResource('cart', \App\Http\Controllers\CartController::class)->names('shop.cart');
+    Route::apiResource('/shopper/orders', \App\Http\Controllers\OrderController::class)->names('shop.shopper.orders');
     Route::post('/cart/merge-guest-cart', [CartController::class, 'mergeGuestCart'])->name('shop.cart.mergeGuestCart');
 });
 
 // Admin Routes
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::apiResource('products', \App\Http\Controllers\Admin\ProductController::class);
-        Route::apiResource('categories', \App\Http\Controllers\Admin\CategoryController::class);
-        Route::apiResource('orders', \App\Http\Controllers\Admin\OrderController::class);
+        Route::apiResource('products', \App\Http\Controllers\Admin\ProductController::class)->names('admin.products');
+        Route::apiResource('categories', \App\Http\Controllers\Admin\CategoryController::class)->names('admin.categories');
+        Route::apiResource('orders', \App\Http\Controllers\Admin\OrderController::class)->names('admin.orders');
         Route::get('orders-statuses', [\App\Http\Controllers\Admin\OrderController::class, 'getStatuses'])->name('admin.orders.statuses');
         Route::get('dashboard/overview', [\App\Http\Controllers\Admin\DashboardController::class, 'getOverview'])->name('admin.dashboard.overview');
     });
